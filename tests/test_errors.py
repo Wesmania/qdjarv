@@ -151,3 +151,63 @@ def test_missing_fields():
     parser = Parser(top="articles", types=types_rel)
     with pytest.raises(ValidationError):
         parser.parse(response2_rel)
+
+
+def test_bad_field_type():
+    types = {
+        "articles": {
+            "title": Type(str),
+        },
+    }
+    response1 = {
+      "data": {
+        "type": "articles",
+        "id": "1",
+        "attributes": {
+            "title": ["Hello", "world"]
+        },
+      },
+    }
+    parser = Parser(top="articles", types=types)
+    with pytest.raises(ValidationError):
+        parser.parse(response1)
+
+    response2 = {
+      "data": {
+        "type": "articles",
+        "id": "1",
+        "attributes": {
+            "title": None
+        },
+      },
+    }
+    parser = Parser(top="articles", types=types)
+    with pytest.raises(ValidationError):
+        parser.parse(response2)
+
+
+def test_custom_validation():
+    def optional(t):
+        def do(elem):
+            if elem is None:
+                return elem
+            return Type(elem)
+        return do
+
+    types = {
+        "articles": {
+            "title": optional(str),
+        },
+    }
+    response = {
+      "data": {
+        "type": "articles",
+        "id": "1",
+        "attributes": {
+            "title": None
+        },
+      },
+    }
+    parser = Parser(top="articles", types=types)
+    result = parser.parse(response)
+    assert result["data"]["title"] is None

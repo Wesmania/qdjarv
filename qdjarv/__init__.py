@@ -121,8 +121,6 @@ class Parser:
         if f not in obj[".attributes"]:
             raise ValidationError(f"Field '{f}' not found for '{ot}'")
         f_data = obj[".attributes"][f]
-        if f_data is None:
-            return
         obj[f] = f_type(f_data)
 
     def _link(self, objs):
