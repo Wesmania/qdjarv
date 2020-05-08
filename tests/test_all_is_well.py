@@ -1,4 +1,3 @@
-import pytest
 from copy import deepcopy
 from qdjarv import Parser, Type, Rel
 
@@ -45,7 +44,7 @@ response = {
           "self": "http://example.com/articles/1/relationships/author",
           "related": "http://example.com/articles/1/author"
         },
-        "data": { "type": "people", "id": "9" }
+        "data": {"type": "people", "id": "9"}
       },
       "comments": {
         "links": {
@@ -53,8 +52,8 @@ response = {
           "related": "http://example.com/articles/1/comments"
         },
         "data": [
-          { "type": "comments", "id": "5" },
-          { "type": "comments", "id": "12" }
+          {"type": "comments", "id": "5"},
+          {"type": "comments", "id": "12"}
         ]
       }
     },
@@ -81,7 +80,7 @@ response = {
     },
     "relationships": {
       "author": {
-        "data": { "type": "people", "id": "2" }
+        "data": {"type": "people", "id": "2"}
       }
     },
     "links": {
@@ -95,7 +94,7 @@ response = {
     },
     "relationships": {
       "author": {
-        "data": { "type": "people", "id": "9" }
+        "data": {"type": "people", "id": "9"}
       }
     },
     "links": {
@@ -118,5 +117,6 @@ def test_all_is_well():
     assert author_obj["comments"] == author_obj[".relationships"]["comments"]
 
     assert author_obj["author"]["data"]["firstName"] == "Dan"
-
     assert author_obj["comments"]["data"][0]["body"] == "First!"
+
+    assert mcopy["links"] == response["links"]

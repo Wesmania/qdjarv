@@ -1,3 +1,7 @@
+class ValidationError(Exception):
+    pass
+
+
 class Rel:
     def __init__(self, type_):
         self.type_ = type_
@@ -7,7 +11,7 @@ def Type(t):
 
     def v(obj):
         if not isinstance(obj, t):
-            raise ValueError(f"Expected type '{t}', got '{type(obj)}'")
+            raise ValidationError(f"Expected type '{t}', got '{type(obj)}'")
         return obj
 
     return v
@@ -34,9 +38,9 @@ class Parser:
         is_list = isinstance(spec, list)
         should_be_list = isinstance(item, list)
         if should_be_list and not is_list:
-            raise ValueError("Expected list, got singleton")
+            raise ValidationError("Expected list, got singleton")
         if not should_be_list and is_list:
-            raise ValueError("Expected singleton, got list")
+            raise ValidationError("Expected singleton, got list")
         return should_be_list
 
     def _validate_top(self, obj):
@@ -44,12 +48,12 @@ class Parser:
             top = self.top[0]
             for o in obj:
                 if o["type"] != top:
-                    raise ValueError(
-                        f"Expected [{top}], but top item has type {o['type']}")
+                    raise ValidationError(
+                        f"Expected [{self.top}], but top has type {o['type']}")
         else:
             if obj["type"] != self.top:
-                raise ValueError(
-                    f"Expected {top}, but top has type {obj['type']}")
+                raise ValidationError(
+                    f"Expected {self.top}, but top has type {obj['type']}")
 
     def _rename(self, obj, attr):
         # Conveniently, names with dots are disallowed by jsonapi.
@@ -70,7 +74,7 @@ class Parser:
         self._flatten_object(obj)
         ot = obj["type"]
         if ot not in self.types:
-            raise ValueError(f"Unknown type '{ot}'")
+            raise ValidationError(f"Unknown type '{ot}'")
 
         f_filter = self.fields.get(ot)
         o_fields = self.types[ot]
@@ -82,7 +86,7 @@ class Parser:
     def _validate_field(self, obj, f, f_type):
         ot = obj["type"]
         if f not in obj:
-            raise ValueError(f"Did not find '{f}' in type '{ot}'")
+            raise ValidationError(f"Did not find '{f}' in type '{ot}'")
 
         if isinstance(f_type, Rel):
             self._validate_rel(obj, f, f_type)
@@ -93,7 +97,7 @@ class Parser:
         ot = obj["type"]
         f_data = obj[".relationships"].get(f)
         if f_data is None:
-            raise ValueError(f"Relationship '{f}' not found for '{ot}'")
+            raise ValidationError(f"Relationship '{f}' not found for '{ot}'")
         if "data" not in f_data:
             return
 
@@ -102,20 +106,20 @@ class Parser:
             rel_type = f_type.type_[0]
             for d in data:
                 if d["type"] != rel_type:
-                    raise ValueError(
+                    raise ValidationError(
                         f"Expected type '{rel_type}', got '{data['type']}'")
         else:
             if data is None:
                 return
             rel_type = f_type.type_
             if data["type"] != rel_type:
-                raise ValueError(
+                raise ValidationError(
                     f"Expected type '{rel_type}', got '{data['type']}'")
 
     def _validate_attr(self, obj, f, f_type):
         ot = obj["type"]
         if f not in obj[".attributes"]:
-            raise ValueError(f"Field '{f}' not found for '{ot}'")
+            raise ValidationError(f"Field '{f}' not found for '{ot}'")
         f_data = obj[".attributes"][f]
         if f_data is None:
             return
@@ -156,7 +160,7 @@ class Parser:
             # Assume all include fields are verified as present.
             for f, sub in spec.items():
                 if f not in obj or "data" not in obj[f]:
-                    raise ValueError(f"Field {f} was not included")
+                    raise ValidationError(f"Field {f} was not included")
                 data = obj[f]["data"]
                 if data is None:    # Null one-to-one rel
                     return
@@ -166,7 +170,7 @@ class Parser:
                     to_check = [data]
                 for d in to_check:
                     if set(d.keys()) == {"id", "type"}:
-                        raise ValueError(f"Field {f} was not included")
+                        raise ValidationError(f"Field {f} was not included")
                 self._verify_includes_rec(data, sub)
 
     def parse(self, message):
@@ -174,6 +178,7 @@ class Parser:
 
         if "data" in message:
             d = message["data"]
+            self._validate_top(d)
             if isinstance(d, list):
                 for v in d:
                     self._parse_one(v)
@@ -181,7 +186,6 @@ class Parser:
             else:
                 self._parse_one(d)
                 all_objects.append(d)
-            self._validate_top(d)
 
         if "included" in message:
             d = message["included"]
