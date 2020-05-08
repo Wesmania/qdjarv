@@ -67,12 +67,12 @@ include = {
 top = ["articles"]  # This is a list, single element would be just "articles".
 
 # Finally, create a parser.
-# If something goes wrong, it will throw a ValueError.
 p = Parser(top, types, include=include, fields=fields)
 
 # Parsing modifies the received message, so make a copy if you want the
 # original!
 # Also remember to pass the message through jsonapi jsonschema first.
+# If something goes wrong, it will throw a ValueError.
 parsed = p.parse(message)
 
 # If you don't feel like repeating yourself, you can get your get parameters
