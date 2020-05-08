@@ -21,7 +21,7 @@ Usage
 
 Here's example usage:
 
-```
+```python
 # Start by defining your types
 
 from qdjarv import Parser, Type, Rel
@@ -82,7 +82,7 @@ include_args = p.include_args()
 ```
 
 Here's an example parsed message:
-```
+```python
 {
     # Other toplevel stuff skipped for brevity.
     "data": [
