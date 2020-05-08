@@ -149,7 +149,7 @@ class Parser:
         self._verify_includes_rec(data, self.include)
 
     def _verify_includes_rec(self, obj, spec):
-        if obj is list:
+        if isinstance(obj, list):
             for o in obj:
                 self._verify_includes_rec(o, spec)
         else:
@@ -158,14 +158,14 @@ class Parser:
                 if f not in obj or "data" not in obj[f]:
                     raise ValueError(f"Field {f} was not included")
                 data = obj[f]["data"]
-                if data is None:
+                if data is None:    # Null one-to-one rel
                     return
                 if isinstance(data, list):
                     to_check = data
                 else:
                     to_check = [data]
                 for d in to_check:
-                    if set(data.values()) == {"id", "type"}:
+                    if set(d.keys()) == {"id", "type"}:
                         raise ValueError(f"Field {f} was not included")
                 self._verify_includes_rec(data, sub)
 
