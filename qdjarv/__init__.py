@@ -132,6 +132,8 @@ class Parser:
             return
 
         def lookup(ref):
+            if ref is None:
+                return ref
             key = (ref["id"], ref["type"])
             return obj_dict.get(key, ref)
 
