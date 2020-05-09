@@ -84,10 +84,6 @@ class Parser:
             self._validate_field(obj, f, f_type)
 
     def _validate_field(self, obj, f, f_type):
-        ot = obj["type"]
-        if f not in obj:
-            raise ValidationError(f"Did not find '{f}' in type '{ot}'")
-
         if isinstance(f_type, Rel):
             self._validate_rel(obj, f, f_type)
         else:
@@ -95,7 +91,7 @@ class Parser:
 
     def _validate_rel(self, obj, f, f_type):
         ot = obj["type"]
-        f_data = obj[".relationships"].get(f)
+        f_data = obj.get(".relationships", {}).get(f)
         if f_data is None:
             raise ValidationError(f"Relationship '{f}' not found for '{ot}'")
         if "data" not in f_data:
@@ -118,7 +114,7 @@ class Parser:
 
     def _validate_attr(self, obj, f, f_type):
         ot = obj["type"]
-        if f not in obj[".attributes"]:
+        if ".attributes" not in obj or f not in obj[".attributes"]:
             raise ValidationError(f"Field '{f}' not found for '{ot}'")
         f_data = obj[".attributes"][f]
         obj[f] = f_type(f_data)
