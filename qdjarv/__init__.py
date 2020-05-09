@@ -27,11 +27,13 @@ class Parser:
     def fields_args(self):
         return [f"fields[{k}]={','.join(vs)}" for k, vs in self.fields.items()]
 
-    def include_args(self, pfx=None):
+    def include_args(self, include=None, pfx=""):
         res = []
-        for k, v in self.include.items():
+        if include is None:
+            include = self.include
+        for k, v in include.items():
             res.append(pfx + k)
-            res += self.include_str(v, f"{pfx}{k}.")
+            res += self.include_args(v, f"{pfx}{k}.")
         return res
 
     def _check_is_list(self, spec, item):
