@@ -103,7 +103,7 @@ class Parser:
             for d in data:
                 if d["type"] != rel_type:
                     raise ValidationError(
-                        f"Expected type '{rel_type}', got '{data['type']}'")
+                        f"Expected type '{rel_type}', got '{d['type']}'")
         else:
             if data is None:
                 return

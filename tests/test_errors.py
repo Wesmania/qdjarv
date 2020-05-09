@@ -49,6 +49,79 @@ def test_bad_top_type():
         parser.parse(response2)
 
 
+def test_bad_rel_type():
+    types = {
+        "articles": {
+            "comments": Rel("foo"),
+        },
+        "foo": {},
+        "bar": {}
+    }
+    response = {
+        "data": {
+            "type": "articles",
+            "id": "1",
+            "relationships": {
+                "comments": {
+                    "data": {
+                        "id": "1",
+                        "type": "bar",
+                    }
+                }
+            },
+        },
+    }
+    parser = Parser(top="articles", types=types)
+    with pytest.raises(ValidationError):
+        parser.parse(response)
+
+    correct_types = {
+        "articles": {
+            "comments": Rel("bar"),
+        },
+        "foo": {},
+        "bar": {}
+    }
+    parser = Parser(top="articles", types=correct_types)
+    parser.parse(response)
+
+
+def test_bad_rel_list_type():
+    types = {
+        "articles": {
+            "comments": Rel(["bar"]),
+        },
+        "foo": {},
+        "bar": {},
+    }
+    correct_types = {
+        "articles": {
+            "comments": Rel(["foo"]),
+        },
+        "foo": {},
+        "bar": {},
+    }
+    response = {
+        "data": {
+            "type": "articles",
+            "id": "1",
+            "relationships": {
+                "comments": {
+                    "data": [{
+                        "id": "1",
+                        "type": "foo",
+                    }]
+                }
+            },
+        },
+    }
+    parser = Parser(top="articles", types=types)
+    with pytest.raises(ValidationError):
+        parser.parse(response)
+    parser = Parser(top="articles", types=correct_types)
+    parser.parse(response)
+
+
 def test_missing_type():
     types = {
         "articles": {
