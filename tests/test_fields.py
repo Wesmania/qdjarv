@@ -1,5 +1,5 @@
 import pytest
-from qdjarv import Parser, Type, Rel, ValidationError
+from qdjarv import Validator, Type, Rel, ValidationError
 
 
 def test_fields_work():
@@ -19,8 +19,8 @@ def test_fields_work():
 
     fields = {"articles": ["title"]}
 
-    parser = Parser(top="articles", types=types, fields=fields)
-    res = parser.parse(response)
+    validator = Validator(top="articles", types=types, fields=fields)
+    res = validator.validate(response)
 
     assert "title" in res["data"]
 
@@ -42,9 +42,9 @@ def test_fields_missing_field():
 
     fields = {"articles": ["title"]}
 
-    parser = Parser(top="articles", types=types, fields=fields)
+    validator = Validator(top="articles", types=types, fields=fields)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
 
 def test_rel_fields():
@@ -82,8 +82,8 @@ def test_rel_fields():
 
     fields = {"articles": ["comments"], "comments": ["foo"]}
 
-    parser = Parser(top="articles", types=types, fields=fields)
-    res = parser.parse(response)
+    validator = Validator(top="articles", types=types, fields=fields)
+    res = validator.validate(response)
     assert res["data"]["comments"]["data"][0]["foo"] == "baz"
 
 
@@ -99,7 +99,7 @@ def test_fields_args():
         }
     }
     fields = {"articles": ["comments"], "comments": ["foo", "bar"]}
-    parser = Parser(top="foo", types=types, fields=fields)
-    attrs = parser.fields_args()
+    validator = Validator(top="foo", types=types, fields=fields)
+    attrs = validator.fields_args()
     assert set(attrs) == {"fields[articles]=comments",
                           "fields[comments]=foo,bar"}

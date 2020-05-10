@@ -24,7 +24,7 @@ Here's example usage:
 ```python
 # Start by defining your types
 
-from qdjarv import Parser, Type, Rel
+from qdjarv import Validator, Type, Rel
 
 # Field value can be any callable that either returns a validated value or
 # throws.
@@ -66,14 +66,14 @@ include = {
 # Also declare your toplevel type.
 top = ["articles"]  # This is a list, single element would be just "articles".
 
-# Finally, create a parser.
-p = Parser(top, types, include=include, fields=fields)
+# Finally, create a validator.
+p = Validator(top, types, include=include, fields=fields)
 
 # Parsing modifies the received message, so make a copy if you want the
 # original!
 # Also remember to pass the message through jsonapi jsonschema first.
 # If something goes wrong, it will throw a qdjarv.ValidationError.
-parsed = p.parse(message)
+parsed = p.validate(message)
 
 # If you don't feel like repeating yourself, you can get your get parameters
 # like so:

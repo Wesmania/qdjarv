@@ -1,5 +1,5 @@
 from copy import deepcopy
-from qdjarv import Parser, Type, Rel
+from qdjarv import Validator, Type, Rel
 
 
 types = {
@@ -105,10 +105,10 @@ response = {
 
 
 def test_all_is_well():
-    parser = Parser(top=["articles"], types=types, include=include)
+    validator = Validator(top=["articles"], types=types, include=include)
     mcopy = deepcopy(response)
 
-    mcopy = parser.parse(mcopy)
+    mcopy = validator.validate(mcopy)
 
     author_obj = mcopy["data"][0]
 

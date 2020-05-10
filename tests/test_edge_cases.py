@@ -1,4 +1,4 @@
-from qdjarv import Parser, Rel
+from qdjarv import Validator, Rel
 
 
 def test_relation_without_data():
@@ -20,8 +20,8 @@ def test_relation_without_data():
             },
         },
     }
-    parser = Parser("articles", types)
-    msg = parser.parse(response)
+    validator = Validator("articles", types)
+    msg = validator.validate(response)
 
     assert "links" in msg["data"]["comments"]
     assert "data" not in msg["data"]["comments"]
@@ -46,7 +46,7 @@ def test_null_relation():
             },
         },
     }
-    parser = Parser("articles", types)
-    msg = parser.parse(response)
+    validator = Validator("articles", types)
+    msg = validator.validate(response)
 
     assert msg["data"]["comments"]["data"] is None

@@ -17,7 +17,7 @@ def Type(t):
     return v
 
 
-class Parser:
+class Validator:
     def __init__(self, top, types, include=None, fields=None):
         self.top = top
         self.types = types
@@ -171,7 +171,7 @@ class Parser:
                         raise ValidationError(f"Field {f} was not included")
                 self._verify_includes_rec(data, sub)
 
-    def parse(self, message):
+    def validate(self, message):
         all_objects = []
 
         if "data" in message:

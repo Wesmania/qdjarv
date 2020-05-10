@@ -1,5 +1,5 @@
 import pytest
-from qdjarv import Parser, Type, Rel, ValidationError
+from qdjarv import Validator, Type, Rel, ValidationError
 
 
 def test_bad_top_type():
@@ -19,20 +19,20 @@ def test_bad_top_type():
       },
     }
 
-    parser = Parser(top="people", types=types)
+    validator = Validator(top="people", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
-    parser = Parser(top=["people"], types=types)
+    validator = Validator(top=["people"], types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
-    parser = Parser(top=["articles"], types=types)
+    validator = Validator(top=["articles"], types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
-    parser = Parser(top="articles", types=types)
-    parser.parse(response)
+    validator = Validator(top="articles", types=types)
+    validator.validate(response)
 
     response2 = {
       "data": [{
@@ -41,12 +41,12 @@ def test_bad_top_type():
         "attributes": {"title": "JSON:API paints my bikeshed!"},
       }],
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response2)
-    parser = Parser(top=["people"], types=types)
+        validator.validate(response2)
+    validator = Validator(top=["people"], types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response2)
+        validator.validate(response2)
 
 
 def test_bad_rel_type():
@@ -71,9 +71,9 @@ def test_bad_rel_type():
             },
         },
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
     correct_types = {
         "articles": {
@@ -82,8 +82,8 @@ def test_bad_rel_type():
         "foo": {},
         "bar": {}
     }
-    parser = Parser(top="articles", types=correct_types)
-    parser.parse(response)
+    validator = Validator(top="articles", types=correct_types)
+    validator.validate(response)
 
 
 def test_bad_rel_list_type():
@@ -115,11 +115,11 @@ def test_bad_rel_list_type():
             },
         },
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
-    parser = Parser(top="articles", types=correct_types)
-    parser.parse(response)
+        validator.validate(response)
+    validator = Validator(top="articles", types=correct_types)
+    validator.validate(response)
 
 
 def test_missing_type():
@@ -140,17 +140,17 @@ def test_missing_type():
       }]
     }
 
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
     other_types = {
         "things": {}
     }
 
-    parser = Parser(top="articles", types=other_types)
+    validator = Validator(top="articles", types=other_types)
     with pytest.raises(ValidationError):
-        parser.parse(response)
+        validator.validate(response)
 
     full_types = {
         "articles": {
@@ -159,8 +159,8 @@ def test_missing_type():
         "things": {}
     }
 
-    parser = Parser(top="articles", types=full_types)
-    parser.parse(response)
+    validator = Validator(top="articles", types=full_types)
+    validator.validate(response)
 
 
 def test_missing_fields():
@@ -176,9 +176,9 @@ def test_missing_fields():
         "attributes": {},
       },
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response1)
+        validator.validate(response1)
 
     response2 = {
       "data": {
@@ -186,9 +186,9 @@ def test_missing_fields():
         "id": "1",
       },
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response2)
+        validator.validate(response2)
 
     types_rel = {
         "articles": {
@@ -203,9 +203,9 @@ def test_missing_fields():
         "id": "1",
       },
     }
-    parser = Parser(top="articles", types=types_rel)
+    validator = Validator(top="articles", types=types_rel)
     with pytest.raises(ValidationError):
-        parser.parse(response1_rel)
+        validator.validate(response1_rel)
 
     response2_rel = {
       "data": {
@@ -221,9 +221,9 @@ def test_missing_fields():
         }
       },
     }
-    parser = Parser(top="articles", types=types_rel)
+    validator = Validator(top="articles", types=types_rel)
     with pytest.raises(ValidationError):
-        parser.parse(response2_rel)
+        validator.validate(response2_rel)
 
 
 def test_bad_field_type():
@@ -241,9 +241,9 @@ def test_bad_field_type():
         },
       },
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response1)
+        validator.validate(response1)
 
     response2 = {
       "data": {
@@ -254,9 +254,9 @@ def test_bad_field_type():
         },
       },
     }
-    parser = Parser(top="articles", types=types)
+    validator = Validator(top="articles", types=types)
     with pytest.raises(ValidationError):
-        parser.parse(response2)
+        validator.validate(response2)
 
 
 def test_custom_validation():
@@ -281,6 +281,6 @@ def test_custom_validation():
         },
       },
     }
-    parser = Parser(top="articles", types=types)
-    result = parser.parse(response)
+    validator = Validator(top="articles", types=types)
+    result = validator.validate(response)
     assert result["data"]["title"] is None

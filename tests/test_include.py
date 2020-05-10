@@ -1,6 +1,6 @@
 import pytest
 from copy import deepcopy
-from qdjarv import Parser, Rel, Type, ValidationError
+from qdjarv import Validator, Rel, Type, ValidationError
 
 
 def test_include_args():
@@ -26,9 +26,9 @@ def test_include_args():
         "comments": {}
     }
 
-    parser = Parser("articles", types, include=include)
+    validator = Validator("articles", types, include=include)
 
-    args = parser.include_args()
+    args = validator.include_args()
     assert set(args) == {"author", "author.articles", "author.comments",
                          "comments"}
 
@@ -109,12 +109,12 @@ def test_missing_includes():
         ]
     }
 
-    parser = Parser("articles", types, include=include)
+    validator = Validator("articles", types, include=include)
     with pytest.raises(ValidationError):
-        parser.parse(deepcopy(response_1))
+        validator.validate(deepcopy(response_1))
     with pytest.raises(ValidationError):
-        parser.parse(deepcopy(response_2))
-    parser.parse(deepcopy(response_3))
+        validator.validate(deepcopy(response_2))
+    validator.validate(deepcopy(response_3))
 
 
 def test_include_field_without_data():
@@ -141,12 +141,12 @@ def test_include_field_without_data():
             },
         }
     }
-    parser = Parser("articles", types)
-    parser.parse(deepcopy(response))
+    validator = Validator("articles", types)
+    validator.validate(deepcopy(response))
 
-    parser = Parser("articles", types, include=include)
+    validator = Validator("articles", types, include=include)
     with pytest.raises(ValidationError):
-        parser.parse(deepcopy(response))
+        validator.validate(deepcopy(response))
 
 
 def test_include_null_field():
@@ -174,6 +174,6 @@ def test_include_null_field():
             },
         }
     }
-    parser = Parser("articles", types, include=include)
-    msg = parser.parse(deepcopy(response))
+    validator = Validator("articles", types, include=include)
+    msg = validator.validate(deepcopy(response))
     assert msg["data"]["author"]["data"] is None
